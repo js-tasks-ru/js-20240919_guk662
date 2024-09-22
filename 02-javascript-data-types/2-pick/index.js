@@ -6,6 +6,6 @@
  */
 export const pick = (obj, ...fields) => {
   let entries = Object.entries(obj);
-  let entriesMap = entries.filter(([key, value]) => fields.includes(key));
+  let entriesMap = entries.filter(([key, _]) => fields.includes(key));
   return Object.fromEntries(entriesMap);
 };
