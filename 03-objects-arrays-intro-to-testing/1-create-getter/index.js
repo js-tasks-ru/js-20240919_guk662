@@ -12,7 +12,7 @@ export function createGetter(path) {
 
     let currentProp = obj;
 
-    for (let prop of props) {
+    for (const prop of props) {
       if (currentProp === undefined) {
         return;
       }
