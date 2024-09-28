@@ -5,5 +5,20 @@
  * @returns {string} - the new string without extra symbols according passed size
  */
 export function trimSymbols(string, size) {
+  if (size === undefined) { return string; }
 
+  let currentSize;
+  let trimString = '';
+
+  for (const sym of string) {
+    if (sym !== trimString.at(-1)) { currentSize = 0; }
+    
+    if (currentSize < size) {
+      trimString += sym;
+      currentSize++;
+    }
+    else { continue; }
+  }
+
+  return trimString;
 }
