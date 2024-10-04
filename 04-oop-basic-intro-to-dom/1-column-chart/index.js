@@ -31,11 +31,11 @@ export default class ColumnChart {
     });
   }
 
-  createLinkElement() {
+  createLinkTemplate() {
     return this.link ? `<a href="${this.link}" class="column-chart__link">View all</a>` : '';
   }
 
-  createDataElement() {
+  createDataTemplate() {
     return this.getColumnProps(this.data).map(({ value, percent }) => `<div style="--value: ${value}" data-tooltip="${percent}"></div>`).join('\n');
   }
 
@@ -51,12 +51,12 @@ export default class ColumnChart {
         <div class="column-chart ${this.data.length > 0 ? '' : 'column-chart_loading'}" style="--chart-height: ${this.chartHeight}">
           <div class="column-chart__title">
               ${this.label}
-              ${this.createLinkElement()}
+              ${this.createLinkTemplate()}
           </div>
           <div class="column-chart__container">
               <div data-element="header" class="column-chart__header">${this.createTotalValue()}</div>
                   <div data-element="body" class="column-chart__chart">
-                      ${this.createDataElement()}
+                      ${this.createDataTemplate()}
                   </div>
               </div>
           </div>
