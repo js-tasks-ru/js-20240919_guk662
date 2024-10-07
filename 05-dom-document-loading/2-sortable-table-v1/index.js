@@ -36,7 +36,7 @@ export default class SortableTable {
 
   _createDataTemplate() {
     const dataCellTemplates = this._data.map(item => {
-      let dataCellTemplate = `<a href="#" class="sortable-table__row">`;
+      let dataCellTemplate = `<a href="products/${item.id}" class="sortable-table__row">`;
 
       for (const cell of this._headerConfig) {
         if (cell.template) {
