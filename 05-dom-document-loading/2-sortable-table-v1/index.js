@@ -23,7 +23,9 @@ export default class SortableTable {
     element.innerHTML = `
         <div data-element="productsContainer" class="products-list__container">
           <div class="sortable-table">
-            ${headerTemplate}
+            <div data-element="header" class="sortable-table__header sortable-table__row">
+              ${headerTemplate}
+            </div>
             <div data-element="body" class="sortable-table__body">
               ${dataTemplate}
             </div>
@@ -35,7 +37,7 @@ export default class SortableTable {
   }
 
   _createDataTemplate() {
-    const dataCellTemplates = this._data.map(item => {
+    return this._data.map(item => {
       let dataCellTemplate = `<a href="products/${item.id}" class="sortable-table__row">`;
 
       for (const cell of this._headerConfig) {
@@ -52,25 +54,16 @@ export default class SortableTable {
       return dataCellTemplate;
     }).join('');
 
-    return dataCellTemplates;
   }
 
   _createHeaderTemplate() {
-    const headerCellTemplates = this._headerConfig.map(item => {
+    return this._headerConfig.map(item => {
       return `
           <div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
             <span>${item.title}</span>
           </div>
         `;
     }).join('');
-
-    const template = `
-        <div data-element="header" class="sortable-table__header sortable-table__row">
-          ${headerCellTemplates}
-        </div>
-      `;
-
-    return template;
   }
 
   _updateSortHeaderCell(field, sortType) {
