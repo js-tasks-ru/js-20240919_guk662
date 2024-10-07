@@ -74,12 +74,12 @@ export default class SortableTable {
   }
 
   _updateSortHeaderCell(field, sortType) {
-    if (this.sortHeaderCellElement) {
-      this.sortHeaderCellElement.dataset.order = '';
-      this.sortHeaderCellElement.querySelector('[data-element="arrow"]').remove();
+    if (this._sortHeaderCellElement) {
+      this._sortHeaderCellElement.dataset.order = '';
+      this._sortHeaderCellElement.querySelector('[data-element="arrow"]').remove();
     }
 
-    this.sortHeaderCellElement = this.element.querySelector(`[data-id="${field}"]`);
+    this._sortHeaderCellElement = this.element.querySelector(`[data-id="${field}"]`);
     const arrowElement = document.createElement('div');
     arrowElement.innerHTML = `
         <span data-element="arrow" class="sortable-table__sort-arrow">
@@ -87,8 +87,8 @@ export default class SortableTable {
         </span>
       `;
 
-    this.sortHeaderCellElement.dataset.order = sortType;
-    this.sortHeaderCellElement.append(arrowElement.firstElementChild);
+    this._sortHeaderCellElement.dataset.order = sortType;
+    this._sortHeaderCellElement.append(arrowElement.firstElementChild);
   }
 
   _updateBody() {
