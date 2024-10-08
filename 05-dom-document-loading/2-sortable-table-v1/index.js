@@ -66,24 +66,6 @@ export default class SortableTable {
     }).join('');
   }
 
-  _updateSortHeaderCell(field, sortType) {
-    if (this._sortHeaderCellElement) {
-      this._sortHeaderCellElement.dataset.order = '';
-      this._sortHeaderCellElement.querySelector('[data-element="arrow"]').remove();
-    }
-
-    this._sortHeaderCellElement = this.element.querySelector(`[data-id="${field}"]`);
-    const arrowElement = document.createElement('div');
-    arrowElement.innerHTML = `
-        <span data-element="arrow" class="sortable-table__sort-arrow">
-          <span class="sort-arrow"></span>
-        </span>
-      `;
-
-    this._sortHeaderCellElement.dataset.order = sortType;
-    this._sortHeaderCellElement.append(arrowElement.firstElementChild);
-  }
-
   _updateBody() {
     const bodyElement = this.element.querySelector('.sortable-table__body');
     bodyElement.innerHTML = this._createDataTemplate();
@@ -110,7 +92,6 @@ export default class SortableTable {
       this._data.sort((a, b) => comparer.call(this, b[field], a[field]));
     }
 
-    this._updateSortHeaderCell(field, sortType);
     this._updateBody();
   }
 
