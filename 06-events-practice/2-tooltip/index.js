@@ -31,7 +31,7 @@ class Tooltip {
   _destroyTargetListeners() {
     this.target.removeEventListener('pointerout', this._handlePointerOut);
     this.target.removeEventListener('pointermove', this._handlePointerMove);
-  }
+  } 
 
   _handlePointerMove = (e) => {
     this.element.style.left = e.clientX + "px";
