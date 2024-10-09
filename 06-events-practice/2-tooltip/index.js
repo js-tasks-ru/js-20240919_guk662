@@ -25,17 +25,10 @@ class Tooltip {
 
   _createTargetListeners() {
     this.target.addEventListener('pointerout', this._handlePointerOut);
-    this.target.addEventListener('pointermove', this._handlePointerMove);
   }
 
   _destroyTargetListeners() {
     this.target.removeEventListener('pointerout', this._handlePointerOut);
-    this.target.removeEventListener('pointermove', this._handlePointerMove);
-  } 
-
-  _handlePointerMove = (e) => {
-    this.element.style.left = e.clientX + "px";
-    this.element.style.top = e.clientY + "px";
   }
 
   _handlePointerOver = (e) => {
@@ -48,7 +41,7 @@ class Tooltip {
     this.target = e.target;
     this._createTargetListeners();
     
-    this.render(tooltip);
+    this.render(tooltip, e.clientX, e.clientY);
   }
 
   _handlePointerOut = () => {
@@ -63,8 +56,12 @@ class Tooltip {
     return tooltipElement.firstElementChild;
   }
 
-  render(tooltip) {
+  render(tooltip, x, y) {
     this.element.textContent = tooltip;
+
+    this.element.style.left = x + "px";
+    this.element.style.top = y + "px";
+
     document.body.append(this.element);
   }
 
