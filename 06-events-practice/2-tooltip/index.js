@@ -25,17 +25,17 @@ class Tooltip {
 
   _createTargetListeners() {
     this.target.addEventListener('pointerout', this._handlePointerOut);
-    this.target.addEventListener('pointermove', this._handlePointerMove);
+    document.addEventListener('pointermove', this._handlePointerMove);
   }
 
   _destroyTargetListeners() {
     this.target.removeEventListener('pointerout', this._handlePointerOut);
-    this.target.removeEventListener('pointermove', this._handlePointerMove);
+    document.removeEventListener('pointermove', this._handlePointerMove);
   } 
 
   _handlePointerMove = (e) => {
     this.element.style.left = e.clientX + "px";
-    this.element.style.top = e.clientY + "px";
+    this.element.style.top = e.clientY + 10 + "px";
   }
 
   _handlePointerOver = (e) => {
