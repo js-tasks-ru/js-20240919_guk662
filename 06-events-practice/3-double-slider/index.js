@@ -43,7 +43,6 @@ export default class DoubleSlider {
     let thumb = e.target;
 
     const onPointerMove = (event) => {
-      if (thumb !== event.target) { return; }
 
       const { left, right } = this.slider.getBoundingClientRect();
       const x = this.normalize(left, right, event.clientX);
