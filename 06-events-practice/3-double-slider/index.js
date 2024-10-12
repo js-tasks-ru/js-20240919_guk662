@@ -40,15 +40,16 @@ export default class DoubleSlider {
   normalize = (min, max, value) => Math.max(min, Math.min(max, value));
 
   _handleThumbPointerDown = (e) => {
-    let thumb = e.target;
+    this.thumb = e.target;
 
     const onPointerMove = (event) => {
-
+      if (this.thumb !== e.target) { return; }
+      
       const { left, right } = this.slider.getBoundingClientRect();
       const x = this.normalize(left, right, event.clientX);
       const ratio = (x - left) / (right - left);
 
-      if (thumb === this.lThumbElement) {
+      if (this.thumb === this.lThumbElement) {
         if (ratio > 1 - this.rightRatio) {
           this.leftRatio = 1 - this.rightRatio;
         } else {
@@ -56,7 +57,7 @@ export default class DoubleSlider {
         }
       }
 
-      if (thumb === this.rThumbElement) {
+      if (this.thumb === this.rThumbElement) {
         if (ratio < this.leftRatio) {
           this.rightRatio = 1 - this.leftRatio;
         } else {
