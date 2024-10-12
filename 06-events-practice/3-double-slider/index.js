@@ -17,8 +17,10 @@ export default class DoubleSlider {
     this.from = from;
     this.to = to;
 
+    this._getDefaultRatio();
     this.element = this._createElements();
     this._createThumbsListeners();
+    this._createRangeSelectEvent();
   }
 
   _createThumbsListeners() {
@@ -31,63 +33,51 @@ export default class DoubleSlider {
     this.rThumbElement.removeEventListener('pointerdown', this._handleThumbPointerDown);
   }
 
+  _createRangeSelectEvent() {
+    this.rsEvent = new CustomEvent('range-select', {detail: {from: this.from, to: this.to}});
+  }
+
+  normalize = (min, max, value) => Math.max(min, Math.min(max, value));
+
   _handleThumbPointerDown = (e) => {
-    const thumb = e.target;
-
-    let shiftX = e.clientX - thumb.getBoundingClientRect().left;
-
-    this.sliderRect = this.slider.getBoundingClientRect();
-
-    let barrierThumbX;
-    if (thumb === this.lThumbElement) { barrierThumbX = this.rThumbElement.getBoundingClientRect().left; }
-    else { barrierThumbX = this.lThumbElement.getBoundingClientRect().right; }
+    let thumb = e.target;
 
     const onPointerMove = (event) => {
-      let newLeft = event.clientX - shiftX - this.sliderRect.left;
+      if (thumb !== event.target) { return; }
 
-      if (newLeft < 0) {
-        newLeft = 0;
-      }
-
-      if (thumb === this.lThumbElement && event.clientX > barrierThumbX) {
-        newLeft = barrierThumbX - this.sliderRect.left;
-      }
-
-      if (thumb === this.rThumbElement && event.clientX < barrierThumbX) {
-        newLeft = barrierThumbX - this.sliderRect.left;
-      }
-
-      let rightEdge = this.sliderRect.width;
-      if (newLeft > rightEdge) {
-        newLeft = rightEdge;
-      }
+      const { left, right } = this.slider.getBoundingClientRect();
+      const x = this.normalize(left, right, event.clientX);
+      const ratio = (x - left) / (right - left);
 
       if (thumb === this.lThumbElement) {
-        this.leftRatio = this._getLeftRatio(newLeft);
-        thumb.style.left = this.leftRatio * 100 + "%";
-      } else {
-        this.rightRatio = this._getRightRatio(newLeft + this.sliderRect.left);
-        thumb.style.right = this.rightRatio * 100 + "%";
+        if (ratio > 1 - this.rightRatio) {
+          this.leftRatio = 1 - this.rightRatio;
+        } else {
+          this.leftRatio = ratio;
+        }
       }
-      
+
+      if (thumb === this.rThumbElement) {
+        if (ratio < this.leftRatio) {
+          this.rightRatio = 1 - this.leftRatio;
+        } else {
+          this.rightRatio = 1 - ratio;
+        }
+      }
 
       this._boundsCalc();
-      
+      this._updateClassesElements();
       this._updateBoundsElements();
-      this._updateProgressElement();
-    };
 
-    const onDragStart = () => {
-      return false;
+      this._createRangeSelectEvent();
+      this.element.dispatchEvent(this.rsEvent);
     };
 
     const onPointerUp = () => {
-      thumb.removeEventListener('dragstart', onDragStart);
       document.removeEventListener('pointerup', onPointerUp);
       document.removeEventListener('pointermove', onPointerMove);
     };
 
-    thumb.addEventListener('dragstart', onDragStart);
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
   }
@@ -101,8 +91,6 @@ export default class DoubleSlider {
   }
 
   _createElements() {
-    this._getDefaultRatio();
-
     const element = document.createElement("div");
 
     element.innerHTML = `
@@ -138,11 +126,13 @@ export default class DoubleSlider {
 
   _boundsCalc() {
     this.from = Math.round(this.min + (this.max - this.min) * this.leftRatio);
-    this.to = Math.ceil(this.max - (this.max - this.min) * this.rightRatio);
+    this.to = Math.round(this.max - (this.max - this.min) * this.rightRatio);
   }
 
-  _updateProgressElement() {
+  _updateClassesElements() {
     this.progressElement.style = `left: ${this.leftRatio * 100}%; right: ${this.rightRatio * 100}%`;
+    this.lThumbElement.style = `left: ${this.leftRatio * 100}%`;
+    this.rThumbElement.style = `right: ${this.rightRatio * 100}%`;
   }
 
   _updateBoundsElements() {
