@@ -67,8 +67,11 @@ export default class ColumnChart {
 
   update(newData) {
     this.data = newData;
-    const body = this.element.querySelector("div[data-element='body']");
-    body.innerHTML = this.createDataTemplate();
+    this.value = this.data.reduce((a, b) => a + b, 0);
+
+    this.element.querySelector("div[data-element='body']").innerHTML = this.createDataTemplate();
+    this.element.querySelector(".column-chart__header").textContent = this.createTotalValue();
+    this.element.className = "column-chart";
   }
 
   remove() {
