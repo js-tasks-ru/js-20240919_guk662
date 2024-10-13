@@ -8,9 +8,6 @@ export default class ColumnChartV2 extends ColumnChart {
     super(props);
 
     this.url = props.url;
-
-    this.subElements = {};
-    this.selectSubElements();
   }
 
   async update(from, to) {
@@ -24,18 +21,12 @@ export default class ColumnChartV2 extends ColumnChart {
   }
 
   async fetchData(from, to) {
-    const url = new URL(BACKEND_URL + "/" + this.url);
+    const url = new URL(this.url, BACKEND_URL);
     url.searchParams.set('from', from);
     url.searchParams.set('to', to);
 
     const data = await fetchJson(url);
     
     return data;
-  }
-
-  selectSubElements() {
-    this.element.querySelectorAll('[data-element]').forEach(element => {
-      this.subElements[element.dataset.element] = element;
-    });
   }
 }

@@ -16,7 +16,10 @@ export default class ColumnChart {
     this.chartHeight = chartHeight;
     this.formatHeading = formatHeading;
 
+    this.subElements = {};
+
     this.element = this.createElement();
+    this.selectSubElements();
   }
 
   getColumnProps(data) {
@@ -69,8 +72,8 @@ export default class ColumnChart {
     this.data = newData;
     this.value = this.data.reduce((a, b) => a + b, 0);
 
-    this.element.querySelector("div[data-element='body']").innerHTML = this.createDataTemplate();
-    this.element.querySelector(".column-chart__header").textContent = this.createTotalValue();
+    this.subElements.body.innerHTML = this.createDataTemplate();
+    this.subElements.header.textContent = this.createTotalValue();
     this.element.className = "column-chart";
   }
 
@@ -80,5 +83,11 @@ export default class ColumnChart {
 
   destroy() {
     this.remove();
+  }
+
+  selectSubElements() {
+    this.element.querySelectorAll('[data-element]').forEach(element => {
+      this.subElements[element.dataset.element] = element;
+    });
   }
 }
