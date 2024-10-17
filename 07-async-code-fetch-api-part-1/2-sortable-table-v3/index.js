@@ -106,11 +106,12 @@ export default class SortableTableV3 extends SortableTableV2 {
       if (addData.length === 0) {
         this._removeScrollListener();
       } else {
+        this._data = [...this._data, ...addData];
         this._addToGrid(addData);
       }
     }
     catch (error) {
-      addData = [];
+      throw error;
     }
 
     this._toggleLoader();
