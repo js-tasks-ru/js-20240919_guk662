@@ -4,6 +4,9 @@ import SortableTableV2 from '../../06-events-practice/1-sortable-table-v2/index.
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class SortableTableV3 extends SortableTableV2 {
+  static scrollShift = 40;
+  static bottomShift = 100;
+
   constructor(headersConfig, {
     data = [],
     sorted = {},
@@ -13,7 +16,7 @@ export default class SortableTableV3 extends SortableTableV2 {
     super(headersConfig, { data, sorted, isSortLocally, url });
 
     this.start = 0;
-    this.end = 30;
+    this.end = SortableTableV3.scrollShift;
 
     if (url) {
       this.url = new URL(url, BACKEND_URL);
@@ -91,20 +94,21 @@ export default class SortableTableV3 extends SortableTableV2 {
     if (this.isLoading) { return; }
 
     let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
-    if (windowRelativeBottom > document.documentElement.clientHeight + 100) { return; }
+    if (windowRelativeBottom > document.documentElement.clientHeight + SortableTableV3.bottomShift) { return; }
 
     this.isLoading = true;
     this._toggleLoader();
 
     this.start = this.end;
-    this.end += 30;
+    this.end += SortableTableV3.scrollShift;
 
     let addData;
     try {
       addData = await this._fetchData(this.start, this.end, this.id, this.order);
       if (addData.length !== 0) {
-        this._data = [...this._data, ...this._getUniqData(addData)];
-        this._addToGrid(addData);
+        const uniqData = this._getUniqData(this._data, addData);
+        this._data = [...this._data, ...uniqData];
+        this._addToGrid(uniqData);
       } else {
         setTimeout(() => {
           this._toggleLoader();
@@ -122,9 +126,9 @@ export default class SortableTableV3 extends SortableTableV2 {
     
   }
 
-  _getUniqData(data) {
-    const ids = data.map(item => item.id);
-    return data.filter(item => !ids.includes(item.id));
+  _getUniqData(currentData, newData) {
+    const ids = currentData.map(item => item.id);
+    return newData.filter(item => !ids.includes(item.id));
   }
 
   _addToGrid(data) {
