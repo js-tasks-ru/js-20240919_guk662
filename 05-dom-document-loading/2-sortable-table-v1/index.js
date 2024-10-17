@@ -18,7 +18,7 @@ export default class SortableTable {
 
     const headerTemplate = this._createHeaderTemplate();
 
-    const dataTemplate = this._createDataTemplate();
+    const dataTemplate = this._createDataTemplate(this._data);
 
     element.innerHTML = `
         <div data-element="productsContainer" class="products-list__container">
@@ -29,6 +29,13 @@ export default class SortableTable {
             <div data-element="body" class="sortable-table__body">
               ${dataTemplate}
             </div>
+            <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
+            <div data-element="emptyPlaceholder" class="sortable-table__empty-placeholder">
+              <div>
+                <p>No products satisfies your filter criteria</p>
+                <button type="button" class="button-primary-outline">Reset all filters</button>
+              </div>
+            </div>
           </div>
         </div>
       `;
@@ -36,8 +43,8 @@ export default class SortableTable {
     return element.firstElementChild;
   }
 
-  _createDataTemplate() {
-    return this._data.map(item => {
+  _createDataTemplate(data) {
+    return data.map(item => {
       let dataCellTemplate = `<a href="products/${item.id}" class="sortable-table__row">`;
 
       for (const cell of this._headerConfig) {
@@ -68,7 +75,7 @@ export default class SortableTable {
 
   _updateBody() {
     const bodyElement = this.element.querySelector('.sortable-table__body');
-    bodyElement.innerHTML = this._createDataTemplate();
+    bodyElement.innerHTML = this._createDataTemplate(this._data);
   }
 
   _stringComparer(a, b) {

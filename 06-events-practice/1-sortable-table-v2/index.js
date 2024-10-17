@@ -11,43 +11,36 @@ export default class SortableTableV2 extends SortableTable {
     this.headersConfig = headersConfig;
     this.data = data;
 
-    const { id, order = "asc"} = sorted;
+    const {
+      id = headersConfig.find(item => item.sortable).id, 
+      order = "asc"
+    } = sorted;
+
+    this.id = id;
+    this.order = order;
 
     this.isSortLocally = isSortLocally;
 
     this.arrowElement = this._createElem(this._createArrowTemplate());
 
     this._createListeners();
-
-    if (id) {
-      this._defaultSortField(id, order);
-    }
+    this._defaultSort();
   }
 
-  _defaultSortField(id, order) {
-    const pointerdown = new MouseEvent('pointerdown', {
-      bubbles: true
-    });
-    this.currentOrder = order;
-    const tdCell = this.subElements.header.querySelector(`[data-id=${id}]`);
-    tdCell.dispatchEvent(pointerdown);
+  _defaultSort() {
+    const sortColumn = this.subElements.header.querySelector(`[data-id=${this.id}]`);
+    sortColumn.dataset.order = this.order;
+    sortColumn.append(this.arrowElement);
+    super.sort(this.id, this.order);
   }
 
-  _orderToggle(id) {
-    if (id !== this.currentId) {
-      if (this.currentId) { this.currentOrder = "desc"; }
-      this.currentId = id;
-      return;
-    }
+  _toggleOrder = order => {
+    const orders = {
+      asc: "desc",
+      desc: "asc"
+    };
 
-    if (this.currentOrder === "asc") {
-      this.currentOrder = "desc";
-    } else {
-      this.currentOrder = "asc";
-    }
-
-    this.currentId = id;
-    return;
+    return orders[order];
   }
 
   _createListeners() {
@@ -70,13 +63,13 @@ export default class SortableTableV2 extends SortableTable {
 
     tableCellElement.append(this.arrowElement);
     
-    const sortField = tableCellElement.dataset.id;
-    this._orderToggle(sortField);
+    this.id = tableCellElement.dataset.id;
+    this.order = this._toggleOrder(this.order);
     
-    tableCellElement.dataset.order = this.currentOrder;
+    tableCellElement.dataset.order = this.order;
 
 
-    this.sort(sortField, this.currentOrder);
+    this.sort(this.id, this.order);
   }
 
   _createElem(template) {
@@ -94,19 +87,19 @@ export default class SortableTableV2 extends SortableTable {
     `;
   }
 
-  _sortOnClient(field, sortType) {
+  sortOnClient(field, sortType) {
     super.sort(field, sortType);
   }
 
-  _sortOnServer(field, sortType) {
+  sortOnServer(field, sortType) {
     throw new Error("Not implemented");
   }
 
   sort(field, sortType) {
     if (this.isSortLocally) {
-      this._sortOnClient(field, sortType);
+      this.sortOnClient(field, sortType);
     } else {
-      this._sortOnServer(field, sortType);
+      this.sortOnServer(field, sortType);
     }
   }
 
