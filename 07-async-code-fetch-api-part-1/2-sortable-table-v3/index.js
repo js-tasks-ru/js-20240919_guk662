@@ -108,6 +108,7 @@ export default class SortableTableV3 extends SortableTableV2 {
       if (addData.length !== 0) {
         const uniqData = this._getUniqData(this._data, addData);
         this._data = [...this._data, ...uniqData];
+        this.end = this._data.length;
         this._addToGrid(uniqData);
       } else {
         setTimeout(() => {
