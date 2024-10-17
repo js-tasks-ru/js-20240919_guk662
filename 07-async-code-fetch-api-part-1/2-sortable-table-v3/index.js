@@ -12,13 +12,14 @@ export default class SortableTableV3 extends SortableTableV2 {
   } = {}) {
     super(headersConfig, { data, sorted, isSortLocally, url });
 
-    this.url = new URL(url, BACKEND_URL);
-
     this.start = 0;
     this.end = 30;
 
-    this.render();
-    this._createScrollListener();
+    if (url) {
+      this.url = new URL(url, BACKEND_URL);
+      this.render();
+      this._createScrollListener();
+    }
   }
 
   async _fetchData(start, end, sort, order) {
