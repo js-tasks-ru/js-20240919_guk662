@@ -32,7 +32,7 @@ export default class SortableTableV3 extends SortableTableV2 {
     this._data = [];
     this._updateBody();
 
-    this._fetchData(this.start, this.end, id, order).then((data) => 
+    this._fetchData(0, this.end, id, order).then((data) => 
     {
       this._data = data;
       this._updateBody();
@@ -42,7 +42,6 @@ export default class SortableTableV3 extends SortableTableV2 {
 
   async render() {
     this._toggleLoader();
-
 
     let data;
     try {
@@ -103,11 +102,15 @@ export default class SortableTableV3 extends SortableTableV2 {
     let addData;
     try {
       addData = await this._fetchData(this.start, this.end, this.id, this.order);
-      if (addData.length === 0) {
-        this._removeScrollListener();
-      } else {
-        this._data = [...this._data, ...addData];
+      if (addData.length !== 0) {
+        this._data = [...this._data, ...this._getUniqData(addData)];
         this._addToGrid(addData);
+      } else {
+        setTimeout(() => {
+          this._toggleLoader();
+          this.isLoading = false;
+        }, 5000);
+        return;
       }
     }
     catch (error) {
@@ -117,6 +120,11 @@ export default class SortableTableV3 extends SortableTableV2 {
     this._toggleLoader();
     this.isLoading = false;
     
+  }
+
+  _getUniqData(data) {
+    const ids = data.map(item => item.id);
+    return data.filter(item => !ids.includes(item.id));
   }
 
   _addToGrid(data) {
