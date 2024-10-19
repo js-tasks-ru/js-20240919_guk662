@@ -4,6 +4,9 @@ import SortableTableV2 from '../../06-events-practice/1-sortable-table-v2/index.
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
 export default class SortableTableV3 extends SortableTableV2 {
+  static scrollShift = 40;
+  static bottomShift = 100;
+
   constructor(headersConfig, {
     data = [],
     sorted = {},
@@ -13,7 +16,7 @@ export default class SortableTableV3 extends SortableTableV2 {
     super(headersConfig, { data, sorted, isSortLocally, url });
 
     this.start = 0;
-    this.end = 30;
+    this.end = SortableTableV3.scrollShift;
 
     if (url) {
       this.url = new URL(url, BACKEND_URL);
@@ -32,7 +35,7 @@ export default class SortableTableV3 extends SortableTableV2 {
     this._data = [];
     this._updateBody();
 
-    this._fetchData(this.start, this.end, id, order).then((data) => 
+    this._fetchData(0, this.end, id, order).then((data) => 
     {
       this._data = data;
       this._updateBody();
@@ -42,7 +45,6 @@ export default class SortableTableV3 extends SortableTableV2 {
 
   async render() {
     this._toggleLoader();
-
 
     let data;
     try {
@@ -92,22 +94,28 @@ export default class SortableTableV3 extends SortableTableV2 {
     if (this.isLoading) { return; }
 
     let windowRelativeBottom = document.documentElement.getBoundingClientRect().bottom;
-    if (windowRelativeBottom > document.documentElement.clientHeight + 100) { return; }
+    if (windowRelativeBottom > document.documentElement.clientHeight + SortableTableV3.bottomShift) { return; }
 
     this.isLoading = true;
     this._toggleLoader();
 
     this.start = this.end;
-    this.end += 30;
+    this.end += SortableTableV3.scrollShift;
 
     let addData;
     try {
       addData = await this._fetchData(this.start, this.end, this.id, this.order);
-      if (addData.length === 0) {
-        this._removeScrollListener();
+      if (addData.length !== 0) {
+        const uniqData = this._getUniqData(this._data, addData);
+        this._data = [...this._data, ...uniqData];
+        this.end = this._data.length;
+        this._addToGrid(uniqData);
       } else {
-        this._data = [...this._data, ...addData];
-        this._addToGrid(addData);
+        setTimeout(() => {
+          this._toggleLoader();
+          this.isLoading = false;
+        }, 5000);
+        return;
       }
     }
     catch (error) {
@@ -117,6 +125,11 @@ export default class SortableTableV3 extends SortableTableV2 {
     this._toggleLoader();
     this.isLoading = false;
     
+  }
+
+  _getUniqData(currentData, newData) {
+    const ids = currentData.map(item => item.id);
+    return newData.filter(item => !ids.includes(item.id));
   }
 
   _addToGrid(data) {
