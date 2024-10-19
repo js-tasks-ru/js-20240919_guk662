@@ -37,7 +37,7 @@ export default class ProductForm {
 
   _deleteImageHandler = (e) => {
     if (!e.target.hasAttribute('data-delete-handle')) { return; }
-    e.target.closest('.sortable-list__item').remove();
+    e.target.closest('li').remove();
   }
 
   _uploadImageHandler = async () => {
@@ -125,8 +125,8 @@ export default class ProductForm {
         <input type="hidden" name="source" value="${image.source}">
         <span>
           <img src="icon-grab.svg" data-grab-handle="" alt="grab">
-          <img class="sortable-table__cell-img" alt="Image" referrerpolicy="no-referrer" src="${image.url}">
-          <span>${image.source}</span>
+          <img class="sortable-table__cell-img" alt="Image" referrerpolicy="no-referrer" src="${escapeHtml(image.url)}">
+          <span>${escapeHtml(image.source)}</span>
         </span>
         <button type="button">
           <img src="icon-trash.svg" data-delete-handle="" alt="delete">
@@ -211,26 +211,26 @@ export default class ProductForm {
     return element;
   }
 
-  _getProductObject(formData) {
-    const product = {images: []};
-    const entries = formData.entries();
+  _getProductObject() {
+    const numberFields = ['discount', 'price', 'quantity', 'status'];
+    const stringFields = ['description', 'subcategory', 'title'];
 
-    for (const [key, value] of entries) {
-      if (key == 'url') {
-        const [_, source] = entries.next().value;
-        product.images.push({url: value, source: source});
-      } else {
-        if (!isNaN(value)) {
-          product[key] = +value;
-        } else {
-          if (key === 'description') {
-            product[key] = escapeHtml(value);
-          } else {
-            product[key] = value;
-          }
-        }
-      }
-    }
+    const product = {images: []};
+
+    numberFields.forEach(item => {
+      product[item] = +this.subElements.productForm.querySelector(`#${item}`).value;
+    });
+
+    stringFields.forEach(item => {
+      product[item] = this.subElements.productForm.querySelector(`#${item}`).value;
+    });
+
+    this.subElements.imageList.querySelectorAll('li').forEach(el => {
+      const url = el.querySelector('input[name="url"]').value;
+      const source = el.querySelector('input[name="source"]').value;
+
+      product.images.push({url, source});
+    });
 
     return product;
   }
@@ -274,8 +274,7 @@ export default class ProductForm {
   }
 
   async save() {
-    const formData = new FormData(this.subElements.productForm);
-    const product = this._getProductObject(formData);
+    const product = this._getProductObject();
 
     if (this.product) {
       product.id = this.productId;
