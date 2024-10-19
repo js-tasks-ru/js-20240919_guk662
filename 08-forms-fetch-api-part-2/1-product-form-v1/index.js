@@ -51,9 +51,9 @@ export default class ProductForm {
       const file = e.target.files[0];
       const formData = new FormData(form);
 
-      this.subElements.uploadImage.classList.add("is-loading");
-
       try {
+        this.subElements.uploadImage.classList.add("is-loading");
+
         const response = await fetchJson(this.imgurUrl, {
           method: 'POST',
           headers: {
@@ -110,7 +110,7 @@ export default class ProductForm {
       let categoriesTemplate = '';
       for (const sub of category.subcategories) {
         categoriesTemplate += `
-          <option value="${sub.id}" ${sub.id === currentSubCategoryId ? 'selected' : ''}>${category.title} > ${sub.title}</option>
+          <option value="${escapeHtml(sub.id)}" ${sub.id === currentSubCategoryId ? 'selected' : ''}>${escapeHtml(category.title)} > ${escapeHtml(sub.title)}</option>
         `;
       }
 
@@ -121,8 +121,8 @@ export default class ProductForm {
   _createImagesTemplate(images) {
     return images.map(image => `
       <li class="products-edit__imagelist-item sortable-list__item" style="">
-        <input type="hidden" name="url" value="${image.url}">
-        <input type="hidden" name="source" value="${image.source}">
+        <input type="hidden" name="url" value="${escapeHtml(image.url)}">
+        <input type="hidden" name="source" value="${escapeHtml(image.source)}">
         <span>
           <img src="icon-grab.svg" data-grab-handle="" alt="grab">
           <img class="sortable-table__cell-img" alt="Image" referrerpolicy="no-referrer" src="${escapeHtml(image.url)}">
@@ -143,12 +143,12 @@ export default class ProductForm {
           <div class="form-group form-group__half_left">
             <fieldset>
               <label class="form-label">Название товара</label>
-              <input id="title" required="" type="text" name="title" class="form-control" placeholder="Название товара">
+              <input value="${escapeHtml(product?.title) ?? ''}" id="title" required="" type="text" name="title" class="form-control" placeholder="Название товара">
             </fieldset>
           </div>
           <div class="form-group form-group__wide">
             <label class="form-label">Описание</label>
-            <textarea id="description" required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара">${product?.description ?? ''}</textarea>
+            <textarea id="description" required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара">${escapeHtml(product?.description) ?? ''}</textarea>
           </div>
           <div class="form-group form-group__wide" data-element="sortable-list-container">
             <label class="form-label">Фото</label>
@@ -168,16 +168,16 @@ export default class ProductForm {
           <div class="form-group form-group__half_left form-group__two-col">
             <fieldset>
               <label class="form-label">Цена ($)</label>
-              <input id="price" value="${product?.price ?? ''}" required="" type="number" name="price" class="form-control" placeholder="100">
+              <input id="price" value="${escapeHtml(product?.price?.toString()) ?? ''}" required="" type="number" name="price" class="form-control" placeholder="100">
             </fieldset>
             <fieldset>
               <label class="form-label">Скидка ($)</label>
-              <input id="discount" value="${product?.discount ?? ''}" required="" type="number" name="discount" class="form-control" placeholder="0">
+              <input id="discount" value="${escapeHtml(product?.discount?.toString()) ?? ''}" required="" type="number" name="discount" class="form-control" placeholder="0">
             </fieldset>
           </div>
           <div class="form-group form-group__part-half">
             <label class="form-label">Количество</label>
-            <input id="quantity" value="${product?.quantity ?? ''}" required="" type="number" class="form-control" name="quantity" placeholder="1">
+            <input id="quantity" value="${escapeHtml(product?.quantity?.toString()) ?? ''}" required="" type="number" class="form-control" name="quantity" placeholder="1">
           </div>
           <div class="form-group form-group__part-half">
             <label class="form-label">Статус</label>
@@ -194,8 +194,6 @@ export default class ProductForm {
         </form>
       </div>
     `;
-
-    element.querySelector('input[name="title"]').value = product?.title ?? '';
 
     return element.firstElementChild;
   }
