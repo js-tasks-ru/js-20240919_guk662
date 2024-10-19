@@ -111,7 +111,7 @@ export default class SortableTableV3 extends SortableTableV2 {
         this.end = this._data.length;
         this._addToGrid(uniqData);
       } else {
-        setTimeout(() => {
+        this.timeoutId = setTimeout(() => {
           this._toggleLoader();
           this.isLoading = false;
         }, 5000);
@@ -139,6 +139,7 @@ export default class SortableTableV3 extends SortableTableV2 {
   
   destroy() {
     super.destroy();
+    clearTimeout(this.timeoutId);
     this._removeScrollListener();
   }
 }
