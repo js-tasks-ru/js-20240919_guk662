@@ -10,6 +10,7 @@ export default class RangePicker {
     this.to = to;
 
     this.open = false;
+    this.isShown = false;
 
     if (this.from > this.to) {
       [this.from, this.to] = [this.to, this.from];
@@ -23,25 +24,39 @@ export default class RangePicker {
     this.subElements = {};
 
     this.selectSubElements();
-    this._createEventListeners();
+    this._createMainEventListeners();
   }
 
-  _createEventListeners() {
+  _createMainEventListeners() {
     document.addEventListener('click', this._outsideClickHandler);
     this.element.addEventListener('click', this._rangePickerClickHandler);
+  }
+
+  _removeMainEventListeners() {
+    document.addEventListener('click', this._outsideClickHandler);
+    this.element.removeEventListener('click', this._rangePickerClickHandler);
+  }
+
+  _createSelectorEventListeners() {
     this.subElements.leftControl.addEventListener('click', this._selectorControlClickHandler);
     this.subElements.rightControl.addEventListener('click', this._selectorControlClickHandler);
     this.subElements.leftGrid.addEventListener('click', this._buttonGridClickHandler);
     this.subElements.rightGrid.addEventListener('click', this._buttonGridClickHandler);
   }
 
-  _removeEventListeners() {
-    document.addEventListener('click', this._outsideClickHandler);
-    this.element.removeEventListener('click', this._rangePickerClickHandler);
+  _removeSelectorEventListeners() {
     this.subElements.leftControl.removeEventListener('click', this._selectorControlClickHandler);
     this.subElements.rightControl.removeEventListener('click', this._selectorControlClickHandler);
     this.subElements.leftGrid.removeEventListener('click', this._buttonGridClickHandler);
     this.subElements.rightGrid.removeEventListener('click', this._buttonGridClickHandler);
+  }
+
+  _initSelector() {
+    this.subElements.selector.innerHTML = this._createSelectorTemplate();
+
+    this.selectSubElements();
+
+    this._createSelectorEventListeners();
   }
 
   _outsideClickHandler = (e) => {
@@ -63,7 +78,13 @@ export default class RangePicker {
 
     if (!e.target.dataset.value) { return; }
 
-    if (this.to == null) {
+    if (this.to) {
+      this._clearHighlighting();
+      this._highlightFrom(e.target);
+
+      this.from = new Date(Date.parse(e.target.dataset.value));
+      this.to = null;
+    } else {
       this.to = new Date(Date.parse(e.target.dataset.value));
       
       if (this.to < this.from) {
@@ -74,12 +95,9 @@ export default class RangePicker {
 
       this.element.dispatchEvent(new Event('date-select'));
       this._toggleOpenClose();
-    } else {
-      this.from = new Date(Date.parse(e.target.dataset.value));
-      this.to = null;
-    }
 
-    this._updateDateGridElement();
+      this._updateDateGridElement();
+    }
   };
 
   _selectorControlClickHandler = (e) => {
@@ -102,6 +120,23 @@ export default class RangePicker {
     this._updateDateGridElement();
   };
 
+  _clearHighlighting() {
+    this._clearGridHighlighting(this.subElements.leftGrid);
+    this._clearGridHighlighting(this.subElements.rightGrid);
+  }
+
+  _clearGridHighlighting(grid) {      
+    for (const elem of grid.children) { 
+      elem.classList.remove('rangepicker__selected-from');
+      elem.classList.remove('rangepicker__selected-between');
+      elem.classList.remove('rangepicker__selected-to');
+    }
+  }
+
+  _highlightFrom(elem) {
+    elem.classList.add('rangepicker__selected-from');
+  }
+
   _updateInput() {
     this.subElements.from.textContent = this.from.toLocaleString('ru', { dateStyle: 'short' });
     this.subElements.to.textContent = this.to.toLocaleString('ru', { dateStyle: 'short' });
@@ -115,6 +150,11 @@ export default class RangePicker {
   _toggleOpenClose() {
     if (!this.open) {
       this.open = true;
+      if (!this.isShown) {
+        this.isShown = true;
+        this._initSelector();
+      }
+
       this.element.classList.add('rangepicker_open');
     } else {
       this.open = false;
@@ -123,7 +163,7 @@ export default class RangePicker {
   }
 
   _getMonthName(month) {
-    return month.toLocaleString('en', {month: 'long'});
+    return month.toLocaleString('ru', {month: 'long'});
   }
 
   _getCalendarObject(year, month) {
@@ -185,7 +225,14 @@ export default class RangePicker {
         <span data-element="from">${this.from.toLocaleString('ru', { dateStyle: 'short' })}</span> -
         <span data-element="to">${this.to.toLocaleString('ru', { dateStyle: 'short' })}</span>
       </div>
-      <div class="rangepicker__selector" data-element="selector">
+      <div class="rangepicker__selector" data-element="selector"></div>
+  </div>`;
+
+    return element.firstElementChild;
+  }
+
+  _createSelectorTemplate() {
+    return `
         <div class="rangepicker__selector-arrow"></div>
         <div class="rangepicker__selector-control-left" data-element="leftControl"></div>
         <div class="rangepicker__selector-control-right" data-element="rightControl"></div>
@@ -223,10 +270,7 @@ export default class RangePicker {
             ${this._createDateGridTemplate(this.rightCalendar)}
           </div>
         </div>
-      </div>
-  </div>`;
-
-    return element.firstElementChild;
+    `;
   }
 
   selectSubElements() {
@@ -240,7 +284,10 @@ export default class RangePicker {
   }
 
   destroy() {
-    this._removeEventListeners();
+    this._removeMainEventListeners();
+    if (this.isShown) {
+      this._removeSelectorEventListeners();
+    }
     this.remove();
   }
 }
