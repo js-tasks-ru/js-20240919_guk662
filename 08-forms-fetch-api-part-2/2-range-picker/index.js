@@ -2,8 +2,8 @@ export default class RangePicker {
   element;
 
   constructor({
-    from = new Date(new Date(Date.now()).setMonth(new Date(Date.now()).getMonth() - 1)),
-    to = new Date(Date.now())
+    from = new Date(),
+    to = new Date()
   } = {}) {
 
     this.from = from;
@@ -25,6 +25,10 @@ export default class RangePicker {
 
     this.selectSubElements();
     this._createMainEventListeners();
+  }
+
+  render() {
+    return this.element;
   }
 
   _createMainEventListeners() {
@@ -93,7 +97,7 @@ export default class RangePicker {
 
       this._updateInput();
 
-      this.element.dispatchEvent(new Event('date-select'));
+      this.element.dispatchEvent(new CustomEvent('date-select', {bubbles: true, detail: {from: this.from, to: this.to}}));
       this._toggleOpenClose();
 
       this._updateDateGridElement();
