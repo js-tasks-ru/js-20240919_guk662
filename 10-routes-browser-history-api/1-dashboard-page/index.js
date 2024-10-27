@@ -17,8 +17,6 @@ class Page {
       this.subElements[componentName] = componentInstance.element;
       this.componentElements[componentName].appendChild(componentInstance.element);
     }
-
-    this.createEventListeners();
   }
 
   selectComponentElements() {
@@ -80,6 +78,7 @@ export default class DashboardPage extends Page {
 
   async render() {
     await super.render();
+    this.createEventListeners();
     return this.element;
   }
 
