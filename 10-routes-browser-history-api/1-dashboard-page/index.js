@@ -3,54 +3,7 @@ import SortableTable from "../../07-async-code-fetch-api-part-1/2-sortable-table
 import ColumnChart from "../../07-async-code-fetch-api-part-1/1-column-chart/index.js";
 import header from "./bestsellers-header.js";
 
-class Page {
-  components = {};
-  subElements = {};
-  element;
-
-  async render() {
-    this.element = this.createElement(this.createTemplate());
-    this.selectComponentElements();
-
-    for (const [componentName, componentInstance] of Object.entries(this.components)) {
-      componentInstance.render();
-      this.subElements[componentName] = componentInstance.element;
-      this.componentElements[componentName].appendChild(componentInstance.element);
-    }
-  }
-
-  selectComponentElements() {
-    this.componentElements = {};
-
-    const elements = this.element.querySelectorAll('[data-component]');
-
-    for (const element of elements) {
-      const name = element.getAttribute('data-component');
-      this.componentElements[name] = element;
-    }
-  }
-
-  createElement(template) {
-    const element = document.createElement('div');
-
-    element.innerHTML = template;
-    
-    return element.firstElementChild;
-  }
-
-  remove() {
-    this.element.remove();
-  }
-
-  destroy() {
-    for (const component of Object.values(this.components)) {
-      component.destroy();
-    }
-    this.remove();
-  }
-}
-
-export default class DashboardPage extends Page {
+export default class Page {
   components = {
     rangePicker: new RangePicker(),
     sortableTable: new SortableTable(header, {
@@ -74,11 +27,22 @@ export default class DashboardPage extends Page {
       formatHeading: (data) => data,
       url: "api/dashboard/customers",
     })
-  }
+  };
+  subElements = {};
+  element;
 
   async render() {
-    await super.render();
+    this.element = this.createElement(this.createTemplate());
+    this.selectComponentElements();
+
+    for (const [componentName, componentInstance] of Object.entries(this.components)) {
+      componentInstance.render();
+      this.subElements[componentName] = componentInstance.element;
+      this.componentElements[componentName].appendChild(componentInstance.element);
+    }
+
     this.createEventListeners();
+
     return this.element;
   }
 
@@ -90,12 +54,23 @@ export default class DashboardPage extends Page {
     this.components.customersChart.update(from, to);
   };
 
-  createEventListeners() {
-    document.addEventListener('date-select', this.dateSelectHandler);
+  selectComponentElements() {
+    this.componentElements = {};
+
+    const elements = this.element.querySelectorAll('[data-component]');
+
+    for (const element of elements) {
+      const name = element.getAttribute('data-component');
+      this.componentElements[name] = element;
+    }
   }
 
-  removeEventListeners() {
-    document.removeEventListener('date-select', this.dateSelectHandler);
+  createElement(template) {
+    const element = document.createElement('div');
+
+    element.innerHTML = template;
+    
+    return element.firstElementChild;
   }
 
   createTemplate() {
@@ -118,9 +93,23 @@ export default class DashboardPage extends Page {
     `;
   }
 
+  createEventListeners() {
+    document.addEventListener('date-select', this.dateSelectHandler);
+  }
+
+  removeEventListeners() {
+    document.removeEventListener('date-select', this.dateSelectHandler);
+  }
+
+  remove() {
+    this.element.remove();
+  }
+
   destroy() {
     this.removeEventListeners();
-    super.destroy();
+    for (const component of Object.values(this.components)) {
+      component.destroy();
+    }
     this.remove();
   }
 }
