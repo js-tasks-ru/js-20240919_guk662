@@ -20,24 +20,17 @@ export default class ProductForm {
 
   _createListeners() {
     this.subElements.uploadImage.addEventListener('click', this._uploadImageHandler);
-    this.subElements.imageList.addEventListener('click', this._deleteImageHandler);
     this.subElements.productForm.addEventListener('submit', this._submitHandler);
   }
 
   _removeListeners() {
     this.subElements.uploadImage.removeEventListener('click', this._uploadImageHandler);
-    this.subElements.imageList.removeEventListener('click', this._deleteImageHandler);
     this.subElements.productForm.removeEventListener('submit', this._submitHandler);
   }
 
   _submitHandler = async (e) => {
     e.preventDefault();
     this.save();
-  }
-
-  _deleteImageHandler = (e) => {
-    if (!e.target.hasAttribute('data-delete-handle')) { return; }
-    e.target.closest('li').remove();
   }
 
   _uploadImageHandler = async () => {
@@ -143,12 +136,12 @@ export default class ProductForm {
           <div class="form-group form-group__half_left">
             <fieldset>
               <label class="form-label">Название товара</label>
-              <input value="${escapeHtml(product?.title) ?? ''}" id="title" required="" type="text" name="title" class="form-control" placeholder="Название товара">
+              <input value="${escapeHtml(product?.title ?? '')}" id="title" required="" type="text" name="title" class="form-control" placeholder="Название товара">
             </fieldset>
           </div>
           <div class="form-group form-group__wide">
             <label class="form-label">Описание</label>
-            <textarea id="description" required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара">${escapeHtml(product?.description) ?? ''}</textarea>
+            <textarea id="description" required="" class="form-control" name="description" data-element="productDescription" placeholder="Описание товара">${escapeHtml(product?.description ?? '')}</textarea>
           </div>
           <div class="form-group form-group__wide" data-element="sortable-list-container">
             <label class="form-label">Фото</label>
@@ -168,16 +161,16 @@ export default class ProductForm {
           <div class="form-group form-group__half_left form-group__two-col">
             <fieldset>
               <label class="form-label">Цена ($)</label>
-              <input id="price" value="${escapeHtml(product?.price?.toString()) ?? ''}" required="" type="number" name="price" class="form-control" placeholder="100">
+              <input id="price" value="${escapeHtml(product?.price?.toString() ?? '')}" required="" type="number" name="price" class="form-control" placeholder="100">
             </fieldset>
             <fieldset>
               <label class="form-label">Скидка ($)</label>
-              <input id="discount" value="${escapeHtml(product?.discount?.toString()) ?? ''}" required="" type="number" name="discount" class="form-control" placeholder="0">
+              <input id="discount" value="${escapeHtml(product?.discount?.toString() ?? '')}" required="" type="number" name="discount" class="form-control" placeholder="0">
             </fieldset>
           </div>
           <div class="form-group form-group__part-half">
             <label class="form-label">Количество</label>
-            <input id="quantity" value="${escapeHtml(product?.quantity?.toString()) ?? ''}" required="" type="number" class="form-control" name="quantity" placeholder="1">
+            <input id="quantity" value="${escapeHtml(product?.quantity?.toString() ?? '')}" required="" type="number" class="form-control" name="quantity" placeholder="1">
           </div>
           <div class="form-group form-group__part-half">
             <label class="form-label">Статус</label>
@@ -223,7 +216,7 @@ export default class ProductForm {
       product[item] = this.subElements.productForm.querySelector(`#${item}`).value;
     });
 
-    this.subElements.imageList.querySelectorAll('li').forEach(el => {
+    this.subElements.imageListContainer.querySelectorAll('li').forEach(el => {
       const url = el.querySelector('input[name="url"]').value;
       const source = el.querySelector('input[name="source"]').value;
 
